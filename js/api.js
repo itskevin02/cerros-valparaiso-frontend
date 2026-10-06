@@ -1,5 +1,12 @@
+const ES_LOCAL =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+
+
 const API_URL =
-    "http://localhost:3000/api";
+    ES_LOCAL
+        ? "http://localhost:3000/api"
+        : "https://cerros-valparaiso-backend.onrender.com/api";
 
 
 async function obtenerDatos(ruta) {
@@ -223,7 +230,7 @@ async function eliminarDetalleReserva(
 
 
 /* =========================================
-   LIQUIDACIONES
+   GENERAR LIQUIDACIÓN
 ========================================= */
 
 async function generarLiquidacion(
@@ -256,6 +263,10 @@ async function generarLiquidacion(
     return datos;
 }
 
+
+/* =========================================
+   GENERAR TODAS
+========================================= */
 
 async function generarTodasLiquidaciones() {
 
