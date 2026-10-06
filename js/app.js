@@ -5,6 +5,8 @@ console.log(
 
 let detallesActuales = [];
 
+let serviciosActuales = [];
+
 let modoEdicion = false;
 
 let idDetalleEditando = null;
@@ -65,6 +67,121 @@ function formatoFecha(fecha) {
             minute: "2-digit"
         }
     );
+}
+
+
+/* =========================================
+   CALCULAR SUBTOTAL
+========================================= */
+
+function calcularSubtotal() {
+
+    const selectServicio =
+        document.getElementById(
+            "idServicio"
+        );
+
+    const campoCantidad =
+        document.getElementById(
+            "cantidadTuristas"
+        );
+
+    const campoSubtotal =
+        document.getElementById(
+            "subtotal"
+        );
+
+
+    const idServicio =
+        Number(
+            selectServicio.value
+        );
+
+    const cantidad =
+        Number(
+            campoCantidad.value
+        );
+
+
+    campoCantidad.setCustomValidity("");
+
+
+    if (!idServicio) {
+
+        campoSubtotal.value = "";
+
+        campoCantidad.removeAttribute(
+            "max"
+        );
+
+        return;
+    }
+
+
+    const servicio =
+        serviciosActuales.find(
+            item =>
+                Number(
+                    item.id_servicio
+                ) === idServicio
+        );
+
+
+    if (!servicio) {
+
+        campoSubtotal.value = "";
+
+        return;
+    }
+
+
+    const tarifa =
+        Number(
+            servicio.tarifa_base
+        );
+
+    const capacidadMaxima =
+        Number(
+            servicio.capacidad_max
+        );
+
+
+    campoCantidad.max =
+        capacidadMaxima;
+
+
+    if (
+        !Number.isInteger(cantidad) ||
+        cantidad <= 0
+    ) {
+
+        campoSubtotal.value = "";
+
+        return;
+    }
+
+
+    if (
+        cantidad >
+        capacidadMaxima
+    ) {
+
+        campoSubtotal.value = "";
+
+        campoCantidad.setCustomValidity(
+            `La capacidad máxima de este servicio es de ${capacidadMaxima} turistas.`
+        );
+
+        return;
+    }
+
+
+    const subtotal =
+        tarifa * cantidad;
+
+
+    campoSubtotal.value =
+        subtotal;
 }
 
 
@@ -301,6 +418,10 @@ async function cargarCombos() {
             await obtenerOperadores();
 
 
+        serviciosActuales =
+            servicios;
+
+
         const selectReserva =
             document.getElementById(
                 "idReserva"
@@ -321,7 +442,9 @@ async function cargarCombos() {
                     <option
                         value="${reserva.id_reserva}"
                     >
-                        ${reserva.id_reserva}
+                        Reserva ${reserva.id_reserva}
+                        -
+                        Cliente ${reserva.rut_cliente}
                         -
                         ${reserva.estado}
                     </option>
@@ -354,6 +477,12 @@ async function cargarCombos() {
                         ${servicio.id_servicio}
                         -
                         ${servicio.descripcion}
+                        -
+                        ${formatoDinero(
+                            servicio.tarifa_base
+                        )}
+                        -
+                        Máx. ${servicio.capacidad_max}
                     </option>
                 `;
 
@@ -541,7 +670,11 @@ function editarDetalle(idDetalle) {
     const detalle =
         detallesActuales.find(
             item =>
-                item.id_detalle === idDetalle
+                Number(
+                    item.id_detalle
+                ) === Number(
+                    idDetalle
+                )
         );
 
 
@@ -594,10 +727,7 @@ function editarDetalle(idDetalle) {
         detalle.cant_turistas;
 
 
-    document.getElementById(
-        "subtotal"
-    ).value =
-        detalle.subtotal;
+    calcularSubtotal();
 
 
     document.getElementById(
@@ -641,6 +771,26 @@ function cancelarEdicion() {
 
 
     formularioReserva.reset();
+
+
+    const campoCantidad =
+        document.getElementById(
+            "cantidadTuristas"
+        );
+
+
+    campoCantidad.removeAttribute(
+        "max"
+    );
+
+    campoCantidad.setCustomValidity(
+        ""
+    );
+
+
+    document.getElementById(
+        "subtotal"
+    ).value = "";
 
 
     document.getElementById(
@@ -701,8 +851,11 @@ async function eliminarDetalle(idDetalle) {
 
 
         if (
-            idDetalleEditando ===
-            idDetalle
+            Number(
+                idDetalleEditando
+            ) === Number(
+                idDetalle
+            )
         ) {
 
             cancelarEdicion();
@@ -934,6 +1087,22 @@ const formularioReserva =
     );
 
 
+document.getElementById(
+    "idServicio"
+).addEventListener(
+    "change",
+    calcularSubtotal
+);
+
+
+document.getElementById(
+    "cantidadTuristas"
+).addEventListener(
+    "input",
+    calcularSubtotal
+);
+
+
 formularioReserva.addEventListener(
     "submit",
     async function (evento) {
@@ -941,12 +1110,117 @@ formularioReserva.addEventListener(
         evento.preventDefault();
 
 
+        calcularSubtotal();
+
+
+        const idDetalle =
+            Number(
+                document.getElementById(
+                    "idDetalle"
+                ).value
+            );
+
+
+        const campoCantidad =
+            document.getElementById(
+                "cantidadTuristas"
+            );
+
+
+        if (
+            !Number.isInteger(
+                idDetalle
+            ) ||
+            idDetalle <= 0
+        ) {
+
+            alert(
+                "El ID Detalle debe ser un número entero mayor a 0."
+            );
+
+            return;
+        }
+
+
+        if (!modoEdicion) {
+
+            const idRepetido =
+                detallesActuales.some(
+                    detalle =>
+                        Number(
+                            detalle.id_detalle
+                        ) === idDetalle
+                );
+
+
+            if (idRepetido) {
+
+                alert(
+                    `El ID Detalle ${idDetalle} ya está registrado. Debe utilizar un ID diferente.`
+                );
+
+                return;
+            }
+
+        }
+
+
+        if (
+            !campoCantidad.checkValidity()
+        ) {
+
+            campoCantidad.reportValidity();
+
+            return;
+        }
+
+
+        const cantidadTuristas =
+            Number(
+                campoCantidad.value
+            );
+
+
+        const subtotalCalculado =
+            Number(
+                document.getElementById(
+                    "subtotal"
+                ).value
+            );
+
+
+        if (
+            !Number.isInteger(
+                cantidadTuristas
+            ) ||
+            cantidadTuristas <= 0
+        ) {
+
+            alert(
+                "La cantidad de turistas debe ser un número entero mayor a 0."
+            );
+
+            return;
+        }
+
+
+        if (
+            !subtotalCalculado ||
+            subtotalCalculado <= 0
+        ) {
+
+            alert(
+                "No se pudo calcular el subtotal. Revise el servicio y la cantidad de turistas."
+            );
+
+            return;
+        }
+
+
         const detalle = {
 
             id_detalle:
-                document.getElementById(
-                    "idDetalle"
-                ).value,
+                idDetalle,
 
             id_reserva:
                 document.getElementById(
@@ -959,14 +1233,10 @@ formularioReserva.addEventListener(
                 ).value,
 
             cant_turistas:
-                document.getElementById(
-                    "cantidadTuristas"
-                ).value,
+                cantidadTuristas,
 
             subtotal:
-                document.getElementById(
-                    "subtotal"
-                ).value,
+                subtotalCalculado,
 
             fecha_servicio:
                 document.getElementById(

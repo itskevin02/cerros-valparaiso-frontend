@@ -273,9 +273,16 @@
                     <input
                         type="number"
                         id="idDetalle"
+                        min="1"
+                        step="1"
                         placeholder="Ej: 9001"
                         required
                     >
+
+                    <small>
+                        Identificador único del detalle.
+                        No puede repetirse un ID que ya exista.
+                    </small>
 
                 </div>
 
@@ -297,6 +304,11 @@
 
                     </select>
 
+                    <small>
+                        Selecciona la reserva existente
+                        a la que se agregará este servicio.
+                    </small>
+
                 </div>
 
 
@@ -317,6 +329,11 @@
 
                     </select>
 
+                    <small>
+                        Selecciona la actividad turística.
+                        Se mostrará su tarifa y capacidad máxima.
+                    </small>
+
                 </div>
 
 
@@ -330,8 +347,16 @@
                         type="number"
                         id="cantidadTuristas"
                         min="1"
+                        step="1"
+                        placeholder="Ej: 2"
                         required
                     >
+
+                    <small>
+                        Cantidad de personas que realizarán
+                        el servicio. No puede superar
+                        la capacidad máxima.
+                    </small>
 
                 </div>
 
@@ -346,8 +371,16 @@
                         type="number"
                         id="subtotal"
                         min="0"
+                        step="1"
+                        placeholder="Se calcula automáticamente"
+                        readonly
                         required
                     >
+
+                    <small>
+                        Se calcula automáticamente:
+                        tarifa del servicio × cantidad de turistas.
+                    </small>
 
                 </div>
 
@@ -363,6 +396,11 @@
                         id="fecha"
                         required
                     >
+
+                    <small>
+                        Selecciona el día en que
+                        se realizará la actividad.
+                    </small>
 
                 </div>
 
@@ -390,9 +428,10 @@
 
             <p class="mensaje-ayuda">
 
-                La información es enviada mediante la API REST.
-                Oracle valida la cantidad de turistas utilizando
-                el trigger TRG_VALIDAR_CANTIDAD_TURISTAS.
+                El subtotal se calcula automáticamente.
+                La cantidad de turistas también es validada
+                en Oracle mediante
+                TRG_VALIDAR_CANTIDAD_TURISTAS.
 
             </p>
 
