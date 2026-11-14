@@ -2181,7 +2181,88 @@ document.getElementById(
     }
 );
 
+/* =========================================
+   MENU ACTIVO
+========================================= */
 
+const enlacesMenu =
+    document.querySelectorAll(
+        ".menu a"
+    );
+
+
+const seccionesPagina =
+    document.querySelectorAll(
+        "main section[id]"
+    );
+
+
+function actualizarMenuActivo() {
+
+    let seccionActual =
+        "dashboard";
+
+
+    seccionesPagina.forEach(
+        seccion => {
+
+            const posicion =
+                seccion.offsetTop - 180;
+
+
+            if (
+                window.scrollY >=
+                posicion
+            ) {
+
+                seccionActual =
+                    seccion.id;
+
+            }
+
+        }
+    );
+
+
+    enlacesMenu.forEach(
+        enlace => {
+
+            const destino =
+                enlace.getAttribute(
+                    "href"
+                );
+
+
+            if (
+                destino ===
+                `#${seccionActual}`
+            ) {
+
+                enlace.classList.add(
+                    "activo"
+                );
+
+            }
+            else {
+
+                enlace.classList.remove(
+                    "activo"
+                );
+
+            }
+
+        }
+    );
+}
+
+
+window.addEventListener(
+    "scroll",
+    actualizarMenuActivo
+);
+
+
+actualizarMenuActivo();
 /* =========================================
    INICIO
 ========================================= */
