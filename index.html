@@ -57,6 +57,10 @@
                 Reservas
             </a>
 
+            <a href="#resenas">
+                Reseñas
+            </a>
+
             <a href="#liquidaciones">
                 Liquidaciones
             </a>
@@ -468,6 +472,256 @@
 
                             <td colspan="7">
                                 Cargando detalles...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- RESEÑAS -->
+
+        <section
+            id="resenas"
+            class="seccion"
+        >
+
+            <h2 id="tituloFormularioResena">
+                Registrar Reseña
+            </h2>
+
+
+            <form
+                id="form-resena"
+                class="formulario"
+            >
+
+
+                <div>
+
+                    <label for="rutClienteResena">
+                        Cliente
+                    </label>
+
+                    <select
+                        id="rutClienteResena"
+                        required
+                    >
+
+                        <option value="">
+                            Selecciona un cliente
+                        </option>
+
+                    </select>
+
+                    <small>
+                        Selecciona el cliente que realizará
+                        la reseña.
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <label for="servicioResena">
+                        Servicio
+                    </label>
+
+                    <select
+                        id="servicioResena"
+                        required
+                    >
+
+                        <option value="">
+                            Selecciona un servicio
+                        </option>
+
+                    </select>
+
+                    <small>
+                        Selecciona la experiencia turística
+                        que será evaluada.
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <label for="calificacionResena">
+                        Calificación
+                    </label>
+
+                    <select
+                        id="calificacionResena"
+                        required
+                    >
+
+                        <option value="">
+                            Selecciona una calificación
+                        </option>
+
+                        <option value="1">
+                            1 - Muy mala
+                        </option>
+
+                        <option value="2">
+                            2 - Mala
+                        </option>
+
+                        <option value="3">
+                            3 - Regular
+                        </option>
+
+                        <option value="4">
+                            4 - Buena
+                        </option>
+
+                        <option value="5">
+                            5 - Excelente
+                        </option>
+
+                    </select>
+
+                    <small>
+                        Calificación de la experiencia
+                        entre 1 y 5.
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <label for="comentarioResena">
+                        Comentario
+                    </label>
+
+                    <textarea
+                        id="comentarioResena"
+                        rows="4"
+                        placeholder="Escribe un comentario sobre la experiencia"
+                        required
+                    ></textarea>
+
+                    <small>
+                        Describe brevemente la experiencia
+                        del turista.
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <label for="etiquetasResena">
+                        Etiquetas
+                    </label>
+
+                    <input
+                        type="text"
+                        id="etiquetasResena"
+                        placeholder="Ej: miradores, fotografia, familia"
+                        required
+                    >
+
+                    <small>
+                        Ingresa las etiquetas separadas
+                        por comas.
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <label for="fechaResena">
+                        Fecha
+                    </label>
+
+                    <input
+                        type="date"
+                        id="fechaResena"
+                        required
+                    >
+
+                    <small>
+                        Selecciona la fecha
+                        de la reseña.
+                    </small>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    id="btnGuardarResena"
+                >
+                    Guardar Reseña
+                </button>
+
+
+                <button
+                    type="button"
+                    id="btnCancelarResena"
+                    class="boton-secundario"
+                    style="display: none;"
+                >
+                    Cancelar Edición
+                </button>
+
+
+            </form>
+
+
+            <p class="mensaje-ayuda">
+
+                Las reseñas son almacenadas en MongoDB
+                utilizando un modelo de datos no relacional.
+
+            </p>
+
+
+            <h3>
+                Reseñas Registradas
+            </h3>
+
+
+            <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Cliente</th>
+                            <th>Experiencia</th>
+                            <th>Cerro</th>
+                            <th>Calificación</th>
+                            <th>Comentario</th>
+                            <th>Etiquetas</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="tablaResenas">
+
+                        <tr>
+
+                            <td colspan="8">
+                                Cargando reseñas...
                             </td>
 
                         </tr>

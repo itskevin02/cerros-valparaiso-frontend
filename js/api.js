@@ -103,6 +103,14 @@ async function obtenerAuditoria() {
 }
 
 
+async function obtenerResenas() {
+
+    return await obtenerDatos(
+        "/resenas"
+    );
+}
+
+
 /* =========================================
    POST DETALLE
 ========================================= */
@@ -220,6 +228,132 @@ async function eliminarDetalleReserva(
         throw new Error(
             datos.error ||
             "Error al eliminar el detalle"
+        );
+
+    }
+
+
+    return datos;
+}
+
+
+/* =========================================
+   POST RESEÑA
+========================================= */
+
+async function crearResena(
+    resena
+) {
+
+    const respuesta =
+        await fetch(
+            `${API_URL}/resenas`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify(
+                        resena
+                    )
+            }
+        );
+
+
+    const datos =
+        await respuesta.json();
+
+
+    if (!respuesta.ok) {
+
+        throw new Error(
+            datos.error ||
+            "Error al guardar la reseña"
+        );
+
+    }
+
+
+    return datos;
+}
+
+
+/* =========================================
+   PUT RESEÑA
+========================================= */
+
+async function actualizarResena(
+    idResena,
+    resena
+) {
+
+    const respuesta =
+        await fetch(
+            `${API_URL}/resenas/${idResena}`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify(
+                        resena
+                    )
+            }
+        );
+
+
+    const datos =
+        await respuesta.json();
+
+
+    if (!respuesta.ok) {
+
+        throw new Error(
+            datos.error ||
+            "Error al actualizar la reseña"
+        );
+
+    }
+
+
+    return datos;
+}
+
+
+/* =========================================
+   DELETE RESEÑA
+========================================= */
+
+async function eliminarResena(
+    idResena
+) {
+
+    const respuesta =
+        await fetch(
+            `${API_URL}/resenas/${idResena}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+    const datos =
+        await respuesta.json();
+
+
+    if (!respuesta.ok) {
+
+        throw new Error(
+            datos.error ||
+            "Error al eliminar la reseña"
         );
 
     }

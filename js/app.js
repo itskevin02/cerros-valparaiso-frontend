@@ -7,9 +7,19 @@ let detallesActuales = [];
 
 let serviciosActuales = [];
 
+let operadoresActuales = [];
+
+let resenasActuales = [];
+
+
 let modoEdicion = false;
 
 let idDetalleEditando = null;
+
+
+let modoEdicionResena = false;
+
+let idResenaEditando = null;
 
 
 /* =========================================
@@ -66,6 +76,45 @@ function formatoFecha(fecha) {
             hour: "2-digit",
             minute: "2-digit"
         }
+    );
+}
+
+
+/* =========================================
+   FORMATO FECHA RESEÑA
+========================================= */
+
+function formatoFechaResena(fecha) {
+
+    if (!fecha) {
+
+        return "-";
+
+    }
+
+
+    const valor =
+        String(fecha)
+            .substring(0, 10);
+
+
+    const partes =
+        valor.split("-");
+
+
+    if (partes.length !== 3) {
+
+        return valor;
+
+    }
+
+
+    return (
+        partes[2] +
+        "-" +
+        partes[1] +
+        "-" +
+        partes[0]
     );
 }
 
@@ -421,6 +470,9 @@ async function cargarCombos() {
         serviciosActuales =
             servicios;
 
+        operadoresActuales =
+            operadores;
+
 
         const selectReserva =
             document.getElementById(
@@ -529,6 +581,122 @@ async function cargarCombos() {
 
     }
 
+}
+
+
+/* =========================================
+   COMBOS RESEÑAS
+========================================= */
+
+function cargarCombosResenas() {
+
+    const selectCliente =
+        document.getElementById(
+            "rutClienteResena"
+        );
+
+    const selectServicio =
+        document.getElementById(
+            "servicioResena"
+        );
+
+
+    selectCliente.innerHTML = `
+        <option value="">
+            Selecciona un cliente
+        </option>
+    `;
+
+
+    const clientes = [];
+
+
+    resenasActuales.forEach(
+        resena => {
+
+            const existe =
+                clientes.some(
+                    cliente =>
+                        cliente.rut_cliente ===
+                        resena.rut_cliente
+                );
+
+
+            if (!existe) {
+
+                clientes.push({
+                    rut_cliente:
+                        resena.rut_cliente,
+
+                    nombre:
+                        resena.cliente.nombre
+                });
+
+            }
+
+        }
+    );
+
+
+    clientes.forEach(
+        cliente => {
+
+            selectCliente.innerHTML += `
+                <option
+                    value="${cliente.rut_cliente}"
+                    data-nombre="${cliente.nombre}"
+                >
+                    ${cliente.rut_cliente}
+                    -
+                    ${cliente.nombre}
+                </option>
+            `;
+
+        }
+    );
+
+
+    selectServicio.innerHTML = `
+        <option value="">
+            Selecciona un servicio
+        </option>
+    `;
+
+
+    serviciosActuales.forEach(
+        servicio => {
+
+            const operador =
+                operadoresActuales.find(
+                    item =>
+                        Number(
+                            item.id_operador
+                        ) === Number(
+                            servicio.id_operador
+                        )
+                );
+
+
+            const cerro =
+                operador
+                    ? operador.cerro
+                    : "Sin cerro";
+
+
+            selectServicio.innerHTML += `
+                <option
+                    value="${servicio.id_servicio}"
+                >
+                    ${servicio.id_servicio}
+                    -
+                    ${servicio.descripcion}
+                    -
+                    ${cerro}
+                </option>
+            `;
+
+        }
+    );
 }
 
 
@@ -884,6 +1052,334 @@ async function eliminarDetalle(idDetalle) {
 
 
 /* =========================================
+   RESEÑAS
+========================================= */
+
+async function cargarResenas() {
+
+    const tabla =
+        document.getElementById(
+            "tablaResenas"
+        );
+
+
+    try {
+
+        resenasActuales =
+            await obtenerResenas();
+
+
+        tabla.innerHTML = "";
+
+
+        if (
+            resenasActuales.length === 0
+        ) {
+
+            tabla.innerHTML = `
+                <tr>
+
+                    <td colspan="8">
+                        No hay reseñas registradas.
+                    </td>
+
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        resenasActuales.forEach(
+            resena => {
+
+                tabla.innerHTML += `
+                    <tr>
+
+                        <td>
+                            ${resena.cliente.nombre}
+                            <br>
+                            <small>
+                                ${resena.rut_cliente}
+                            </small>
+                        </td>
+
+                        <td>
+                            ${resena.id_servicio}
+                            -
+                            ${resena.experiencia.nombre}
+                        </td>
+
+                        <td>
+                            ${resena.experiencia.cerro}
+                        </td>
+
+                        <td>
+                            ${resena.calificacion} / 5
+                        </td>
+
+                        <td>
+                            ${resena.comentario}
+                        </td>
+
+                        <td>
+                            ${resena.etiquetas.join(
+                                ", "
+                            )}
+                        </td>
+
+                        <td>
+                            ${formatoFechaResena(
+                                resena.fecha
+                            )}
+                        </td>
+
+                        <td>
+
+                            <div class="acciones-detalle">
+
+                                <button
+                                    type="button"
+                                    class="boton-editar"
+                                    onclick="editarResena(
+                                        '${resena._id}'
+                                    )"
+                                >
+                                    Editar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="boton-eliminar"
+                                    onclick="eliminarResenaWeb(
+                                        '${resena._id}'
+                                    )"
+                                >
+                                    Eliminar
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+        );
+
+    }
+    catch (error) {
+
+        tabla.innerHTML = `
+            <tr>
+
+                <td colspan="8">
+                    No se pudieron cargar
+                    las reseñas.
+                </td>
+
+            </tr>
+        `;
+
+    }
+
+}
+
+
+/* =========================================
+   EDITAR RESEÑA
+========================================= */
+
+function editarResena(idResena) {
+
+    const resena =
+        resenasActuales.find(
+            item =>
+                String(
+                    item._id
+                ) === String(
+                    idResena
+                )
+        );
+
+
+    if (!resena) {
+
+        return;
+
+    }
+
+
+    modoEdicionResena = true;
+
+    idResenaEditando =
+        resena._id;
+
+
+    document.getElementById(
+        "tituloFormularioResena"
+    ).textContent =
+        "Editar Reseña";
+
+
+    document.getElementById(
+        "rutClienteResena"
+    ).value =
+        resena.rut_cliente;
+
+
+    document.getElementById(
+        "servicioResena"
+    ).value =
+        resena.id_servicio;
+
+
+    document.getElementById(
+        "calificacionResena"
+    ).value =
+        resena.calificacion;
+
+
+    document.getElementById(
+        "comentarioResena"
+    ).value =
+        resena.comentario;
+
+
+    document.getElementById(
+        "etiquetasResena"
+    ).value =
+        resena.etiquetas.join(
+            ", "
+        );
+
+
+    document.getElementById(
+        "fechaResena"
+    ).value =
+        String(
+            resena.fecha
+        ).substring(0, 10);
+
+
+    document.getElementById(
+        "btnGuardarResena"
+    ).textContent =
+        "Actualizar Reseña";
+
+
+    document.getElementById(
+        "btnCancelarResena"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "resenas"
+    ).scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+
+/* =========================================
+   CANCELAR EDICIÓN RESEÑA
+========================================= */
+
+function cancelarEdicionResena() {
+
+    modoEdicionResena = false;
+
+    idResenaEditando = null;
+
+
+    formularioResena.reset();
+
+
+    document.getElementById(
+        "tituloFormularioResena"
+    ).textContent =
+        "Registrar Reseña";
+
+
+    document.getElementById(
+        "btnGuardarResena"
+    ).textContent =
+        "Guardar Reseña";
+
+
+    document.getElementById(
+        "btnCancelarResena"
+    ).style.display =
+        "none";
+}
+
+
+/* =========================================
+   ELIMINAR RESEÑA
+========================================= */
+
+async function eliminarResenaWeb(
+    idResena
+) {
+
+    const confirmar =
+        confirm(
+            "¿Está seguro de eliminar esta reseña?"
+        );
+
+
+    if (!confirmar) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const respuesta =
+            await eliminarResena(
+                idResena
+            );
+
+
+        alert(
+            respuesta.mensaje
+        );
+
+
+        if (
+            String(
+                idResenaEditando
+            ) === String(
+                idResena
+            )
+        ) {
+
+            cancelarEdicionResena();
+
+        }
+
+
+        await cargarResenas();
+
+        cargarCombosResenas();
+
+    }
+    catch (error) {
+
+        alert(
+            error.message
+        );
+
+    }
+}
+
+
+/* =========================================
    LIQUIDACIONES
 ========================================= */
 
@@ -1078,7 +1574,7 @@ async function cargarAuditoria() {
 
 
 /* =========================================
-   FORMULARIO
+   FORMULARIO RESERVA
 ========================================= */
 
 const formularioReserva =
@@ -1300,7 +1796,266 @@ formularioReserva.addEventListener(
 
 
 /* =========================================
-   CANCELAR
+   FORMULARIO RESEÑA
+========================================= */
+
+const formularioResena =
+    document.getElementById(
+        "form-resena"
+    );
+
+
+formularioResena.addEventListener(
+    "submit",
+    async function (evento) {
+
+        evento.preventDefault();
+
+
+        const selectCliente =
+            document.getElementById(
+                "rutClienteResena"
+            );
+
+
+        const rutCliente =
+            selectCliente.value;
+
+
+        const opcionCliente =
+            selectCliente.options[
+                selectCliente.selectedIndex
+            ];
+
+
+        const nombreCliente =
+            opcionCliente.dataset.nombre;
+
+
+        const idServicio =
+            Number(
+                document.getElementById(
+                    "servicioResena"
+                ).value
+            );
+
+
+        const servicio =
+            serviciosActuales.find(
+                item =>
+                    Number(
+                        item.id_servicio
+                    ) === idServicio
+            );
+
+
+        if (!servicio) {
+
+            alert(
+                "Seleccione un servicio válido."
+            );
+
+            return;
+        }
+
+
+        const operador =
+            operadoresActuales.find(
+                item =>
+                    Number(
+                        item.id_operador
+                    ) === Number(
+                        servicio.id_operador
+                    )
+            );
+
+
+        if (!operador) {
+
+            alert(
+                "No se encontró el operador del servicio."
+            );
+
+            return;
+        }
+
+
+        const calificacion =
+            Number(
+                document.getElementById(
+                    "calificacionResena"
+                ).value
+            );
+
+
+        const comentario =
+            document.getElementById(
+                "comentarioResena"
+            ).value.trim();
+
+
+        const textoEtiquetas =
+            document.getElementById(
+                "etiquetasResena"
+            ).value;
+
+
+        const etiquetas =
+            textoEtiquetas
+                .split(",")
+                .map(
+                    etiqueta =>
+                        etiqueta.trim()
+                )
+                .filter(
+                    etiqueta =>
+                        etiqueta !== ""
+                );
+
+
+        const fecha =
+            document.getElementById(
+                "fechaResena"
+            ).value;
+
+
+        if (
+            !rutCliente ||
+            !nombreCliente
+        ) {
+
+            alert(
+                "Seleccione un cliente."
+            );
+
+            return;
+        }
+
+
+        if (
+            calificacion < 1 ||
+            calificacion > 5
+        ) {
+
+            alert(
+                "Seleccione una calificación entre 1 y 5."
+            );
+
+            return;
+        }
+
+
+        if (!comentario) {
+
+            alert(
+                "Debe ingresar un comentario."
+            );
+
+            return;
+        }
+
+
+        if (
+            etiquetas.length === 0
+        ) {
+
+            alert(
+                "Debe ingresar al menos una etiqueta."
+            );
+
+            return;
+        }
+
+
+        const resena = {
+
+            rut_cliente:
+                rutCliente,
+
+            cliente: {
+                nombre:
+                    nombreCliente
+            },
+
+            id_servicio:
+                idServicio,
+
+            experiencia: {
+                nombre:
+                    servicio.descripcion,
+
+                cerro:
+                    operador.cerro
+            },
+
+            calificacion:
+                calificacion,
+
+            comentario:
+                comentario,
+
+            etiquetas:
+                etiquetas,
+
+            fecha:
+                fecha
+
+        };
+
+
+        try {
+
+            let respuesta;
+
+
+            if (
+                modoEdicionResena
+            ) {
+
+                respuesta =
+                    await actualizarResena(
+                        idResenaEditando,
+                        resena
+                    );
+
+            }
+            else {
+
+                respuesta =
+                    await crearResena(
+                        resena
+                    );
+
+            }
+
+
+            alert(
+                respuesta.mensaje
+            );
+
+
+            cancelarEdicionResena();
+
+
+            await cargarResenas();
+
+            cargarCombosResenas();
+
+        }
+        catch (error) {
+
+            alert(
+                error.message
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================
+   CANCELAR DETALLE
 ========================================= */
 
 document.getElementById(
@@ -1308,6 +2063,18 @@ document.getElementById(
 ).addEventListener(
     "click",
     cancelarEdicion
+);
+
+
+/* =========================================
+   CANCELAR RESEÑA
+========================================= */
+
+document.getElementById(
+    "btnCancelarResena"
+).addEventListener(
+    "click",
+    cancelarEdicionResena
 );
 
 
@@ -1435,9 +2202,14 @@ async function iniciarAplicacion() {
 
         cargarLiquidaciones(),
 
-        cargarAuditoria()
+        cargarAuditoria(),
+
+        cargarResenas()
 
     ]);
+
+
+    cargarCombosResenas();
 
 }
 
